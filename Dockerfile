@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # 暴露端口
-EXPOSE 3000 5000
+EXPOSE 5000 3000
 
 # 创建启动脚本
 RUN echo '#!/bin/sh' > start.sh && \
