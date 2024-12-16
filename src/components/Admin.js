@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Paper,
@@ -23,34 +23,33 @@ function Admin() {
     const [newQuote, setNewQuote] = useState({ content: '', author: '' });
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const pageSize = parseInt(process.env.REACT_APP_PAGE_SIZE) || 10;
 
-    const fetchQuotes = async (currentPage) => {
+    const fetchQuotes = useCallback(async (currentPage = page) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/quotes`, {
+            const response = await axios.get(`/api/quotes`, {
                 params: {
                     page: currentPage,
-                    pageSize
+                    pageSize: 10
                 }
             });
             setQuotes(response.data.data);
             setTotalPages(response.data.totalPages);
         } catch (error) {
-            console.error('获取名言列表失败:', error);
+            console.error('Error fetching quotes:', error);
         }
-    };
+    }, [page]);
 
     useEffect(() => {
-        fetchQuotes(page);
-    }, [page]);
+        fetchQuotes();
+    }, [fetchQuotes]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             await axios.post(`${API_BASE_URL}/api/quotes`, newQuote);
             setNewQuote({ content: '', author: '' });
-            fetchQuotes(1); // 添加成功后返回第一页
             setPage(1);
+            fetchQuotes(1); // 添加成功后返回第一页
             alert('名言添加成功！');
         } catch (error) {
             console.error('添加名言失败:', error);
